@@ -1,2 +1,2 @@
 # EtownCodingChallengeSpring2025
-To run this program, simply run Main.java
+To run this program, simply run MainFrame.java
