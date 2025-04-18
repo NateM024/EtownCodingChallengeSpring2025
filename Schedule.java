@@ -23,12 +23,14 @@ public class Schedule extends JPanel{
     private JTable table6;
     private InputPanel inputPanel;
     private BottomPanel bottomPanel;
-    private int[] firstAndLastRows = new int[2]; //change to array
+    private TopViewPanel topViewPanel;
+    private int[] firstAndLastRows = new int[2]; 
     private ArrayList<Color> colorList = new ArrayList<>();
     private ArrayList<String> dayList = new ArrayList<>();
     private ArrayList<JTable> dayTables = new ArrayList<>();
     private ArrayList<DefaultTableModel> dayModels = new ArrayList<>();
 
+    // Constructor
     public Schedule(){
         setBorder(new EmptyBorder(20, 20, 15, 20));
         createTimeTable();
@@ -40,23 +42,21 @@ public class Schedule extends JPanel{
         setVisible(true);
     }
 
-    public void fillDayList(){
-        dayList.add("Monday");
-        dayList.add("Tuesday");
-        dayList.add("Wednesday");
-        dayList.add("Thursday");
-        dayList.add("Friday");
-        dayList.add("Saturday");
-    }
-
+    // Adds a InputPanel object
     public void addInputPanel(InputPanel inputPanel){
         this.inputPanel = inputPanel;
     }
 
+    // Adds a BottomPanel object
     public void addBottomPanel(BottomPanel bottomPanel){
         this.bottomPanel = bottomPanel;
     }
     
+    public void addTopViewPanel(TopViewPanel topViewPanel){
+        this.topViewPanel = topViewPanel;
+    }
+
+    // Fills the colorList ArrayList with colors
     public void fillColorList(){
         colorList.add(new Color(255, 127, 127));
         colorList.add(new Color(173, 216, 230));
@@ -66,6 +66,17 @@ public class Schedule extends JPanel{
     
     }
 
+    // Fills the dayList ArrayList with weekdays
+    public void fillDayList(){
+        dayList.add("Monday");
+        dayList.add("Tuesday");
+        dayList.add("Wednesday");
+        dayList.add("Thursday");
+        dayList.add("Friday");
+        dayList.add("Saturday");
+    }
+
+    // Creates the JTable that contains times 
     public void createTimeTable(){
           // Column names
           String[] columnNames = {"Time"};
@@ -104,6 +115,7 @@ public class Schedule extends JPanel{
           table1 = new JTable(model1);
     }
 
+    // Creates the JTables representing weekdays
     public void createDayTables(){
 
         //Column names
@@ -177,6 +189,7 @@ public class Schedule extends JPanel{
         }
     }
 
+    // Adds all JTables to the Panel
     public void addTables(){
         // Set up the layout using GridBagLayout
         GridBagLayout layout = new GridBagLayout();
@@ -231,6 +244,7 @@ public class Schedule extends JPanel{
         add(scrollPane6, constraints);
     }
 
+    // Clears all JTables 
     public void resetTables(){
         //clear everything from tables 2-6
         for(DefaultTableModel model : dayModels){
@@ -239,37 +253,7 @@ public class Schedule extends JPanel{
             model.setRowCount(55);
             model.setColumnCount(1);
         }
-        // model2.setRowCount(0); 
-        // model2.setColumnCount(0); 
-        // model2.setRowCount(55);
-        // model2.setColumnCount(1);
-
-        // model3.setRowCount(0); 
-        // model3.setColumnCount(0); 
-        // model3.setRowCount(55);
-        // model3.setColumnCount(1);
-
-        // model4.setRowCount(0); 
-        // model4.setColumnCount(0); 
-        // model4.setRowCount(55);
-        // model4.setColumnCount(1);
-
-        // model5.setRowCount(0); 
-        // model5.setColumnCount(0); 
-        // model5.setRowCount(55);
-        // model5.setColumnCount(1);
-
-        // model6.setRowCount(0); 
-        // model6.setColumnCount(0); 
-        // model6.setRowCount(55);
-        // model6.setColumnCount(1);
-
-
-        // table2.getColumnModel().getColumn(0).setPreferredWidth(100);
-        // table3.getColumnModel().getColumn(0).setPreferredWidth(100);
-        // table4.getColumnModel().getColumn(0).setPreferredWidth(100);
-        // table5.getColumnModel().getColumn(0).setPreferredWidth(100);
-        // table6.getColumnModel().getColumn(0).setPreferredWidth(100);
+      
         for(JTable table : dayTables){
             table.getColumnModel().getColumn(0).setPreferredWidth(100);
         }
@@ -285,13 +269,9 @@ public class Schedule extends JPanel{
         for(JTable table : dayTables){
             table.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
         }
-        //  table2.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
-        //  table3.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
-        //  table4.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
-        //  table5.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
-        //  table6.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
     }
 
+    // Resets the currently displayed schedule
     public void resetSchedule(){
         createTimeTable();
         resetTables();
@@ -299,15 +279,16 @@ public class Schedule extends JPanel{
         addTables();
     }
     
+    // Helps display a saved schedule
     public void createSavedSchedule(int scheduleNum){
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:/Users/nmars/My VS Code/EtownCodingChallengeSpring2025/SavedSchedules.txt"))){
-            int count = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader("SavedSchedules.txt"))){
+            int lines = 0;
 
             //find the right line
-            while(count < scheduleNum){
+            while(lines < scheduleNum){
                 //need to check if count > scheduleNum?
                 reader.readLine();
-                count++;
+                lines++;
             }
             resetTables();
             String data = reader.readLine();
@@ -317,13 +298,22 @@ public class Schedule extends JPanel{
                 data = addSavedScheduleData(dayModels.get(i), dayTables.get(i), data, dayList.get(i+1), i);
             }
 
+            System.out.println(data + "        " + data.indexOf("Credits:"));
 
+            //Get credits and notes from data string
+            String credits = data.substring(data.indexOf("Credits:")+8, data.indexOf("Notes:"));
+            String notes = data.substring(data.indexOf("Notes:"));
+
+            //Then send to topviewpanel along with scheduleNum
+            topViewPanel.updateComponents(scheduleNum+1, credits, notes);
+            
         }   
         catch(IOException e){
             System.out.println("Trouble retrieving saved schedules");
         } 
     }
     
+    // Search through saved data to display a new schedule
     public String addSavedScheduleData(DefaultTableModel model, JTable table, String data, String day, int end){
         while(data.indexOf("|") < data.indexOf(day) && data.indexOf("|") != -1){
             int rowNum = Integer.parseInt(data.substring(0, data.indexOf("|")));
@@ -350,17 +340,17 @@ public class Schedule extends JPanel{
         return data;
     }
 
+    // Helps add a new class to the schedule
     public void createNewClass(String name, String days, String time, int credits){
-         // Determine what days the class is on
-        //Class newClass = new Class(name, days, time, credits);
+        // Determine what days the class is on
         if(days.equals("By Arrangement")){
-            inputPanel.updateErrorLabel("This class meets by arrangement, so it cannot be added.");
+            inputPanel.updateErrorLabel("This class meets by arrangement, so it cannot be added.", true);
         }
         else if(days.equals("Online")){
-            inputPanel.updateErrorLabel("This class meets online and not on a specific day, so it cannot be added.");
+            inputPanel.updateErrorLabel("This class meets online, so it cannot be added.", true);
         }
         else if(days.equals("Field")){
-            inputPanel.updateErrorLabel("This class is a field placement which does not meet on predetermined days, so it cannot be added.");
+            inputPanel.updateErrorLabel("This class is a field placement which does not meet on predetermined days, so it cannot be added.", true);
         }
         else{
             if(checkAvailability(days, time)){
@@ -381,15 +371,18 @@ public class Schedule extends JPanel{
                         addToTables(table6, model6, name, null);
                     }
                 }
+
                 //update colors
                 Color tempColor = colorList.remove(0);
                 colorList.add(tempColor);
+
                 //update credits displayed in bottom panel
                 if(credits == 0){
-                    inputPanel.updateErrorLabel("Error adding class credits");
+                    inputPanel.updateErrorLabel("Error adding class credits", true);
                 }
                 else{
                     bottomPanel.updateCredits(credits);
+                    inputPanel.updateErrorLabel("", true); //clear error label from any previous text
                 }
                 //reset array
                 firstAndLastRows = new int[2];
@@ -398,6 +391,7 @@ public class Schedule extends JPanel{
         }
     }
 
+    // Checks if a class can be added in all days it runs
     public boolean checkAvailability(String days, String time){
         for(int i = 0; i < days.length(); i++){
             if(days.substring(i, i+1).equals("M")){
@@ -429,6 +423,7 @@ public class Schedule extends JPanel{
         return true;
     }
 
+    // Checks if there is room to add a class in a specific day and time
     public boolean canAddClass(JTable table, String time){
         //Need to know how many rows are in the table
         int rows = table.getRowCount();
@@ -439,7 +434,7 @@ public class Schedule extends JPanel{
             firstHour = Integer.parseInt(time.substring(0,2));
  
         } catch (NumberFormatException e) {
-            inputPanel.updateErrorLabel("Error in receiving class time. Choose a new class");
+            inputPanel.updateErrorLabel("Error in receiving class time. Choose a new class", true);
             return false;
         }
          
@@ -454,8 +449,12 @@ public class Schedule extends JPanel{
         int lastHour = 0;
         try{
             lastHour = Integer.parseInt(time.substring(8,10));
+            if(lastHour > 4 && lastHour <= 8){ //check if the class ends at time not shown on schedule
+                inputPanel.updateErrorLabel("The schedule is unable to display this class", true);
+                return false;
+            }
         }catch(NumberFormatException e){
-            inputPanel.updateErrorLabel("Error in receiving class time. Choose a new class");
+            inputPanel.updateErrorLabel("Error in receiving class time. Choose a new class", true);
             return false;
         }
  
@@ -465,19 +464,18 @@ public class Schedule extends JPanel{
         lastHour = ((lastHour - 8) * 6 + rows)%rows;
         //Turn time into row number
         int lastRow = lastHour + Integer.parseInt(time.substring(11,12));
- 
         if(lastRow >= rows){
-            inputPanel.updateErrorLabel("Class cannot fully fit in the schedule");
+            inputPanel.updateErrorLabel("Class cannot fully fit in the schedule", true);
         }
         
         for(int j = 0; j < table.getRowCount(); j++){
             if(table.getRowHeight(j) > 12){
                 if(firstRow == j){ //if the class is the same time as one already on the schedule
-                    inputPanel.updateErrorLabel("There is already a class during this time");
+                    inputPanel.updateErrorLabel("There is already a class during this time", true);
                     return false;
                 }
                 else if(firstRow <= j + table.getRowHeight(j)/12 && j + table.getRowHeight(j)/12 <= lastRow){
-                    inputPanel.updateErrorLabel("There is already a class during this time");
+                    inputPanel.updateErrorLabel("There is already a class during this time", true);
                     return false;
                 }
                 else if(firstRow > j){
@@ -494,32 +492,41 @@ public class Schedule extends JPanel{
         return true;
     }
 
+    // Adds a new class to the JTables
     public void addToTables(JTable table, DefaultTableModel model, String name, Color color){
         //remove rows taken up by new class
+        System.out.println(firstAndLastRows[0] + "     " + firstAndLastRows[1]);
+
         for(int j = firstAndLastRows[1]-1; j > firstAndLastRows[0]; j--){
             model.removeRow(j);
         }
+        //in case the last row happens to be negative
+        if(firstAndLastRows[1] <= 0){
+            firstAndLastRows[1] = firstAndLastRows[1] + model.getRowCount();
+        }
+        
         //send correct color to the cell
         if(color == null){
-            ((WordWrapCellRenderer) table.getCellRenderer(firstAndLastRows[0], 0)).setColor(colorList.get(0));
+            ((WordWrapCellRenderer) table.getCellRenderer(firstAndLastRows[0], 0)).setColor(colorList.get(0), firstAndLastRows[0]);
         }
         else{
-            ((WordWrapCellRenderer) table.getCellRenderer(firstAndLastRows[0], 0)).setColor(color);
+            ((WordWrapCellRenderer) table.getCellRenderer(firstAndLastRows[0], 0)).setColor(color, firstAndLastRows[0]);
         }
+        //helps ensures colors stay in the right cells
         ((WordWrapCellRenderer) table.getCellRenderer(firstAndLastRows[0], 0)).resetCount();
 
-        
         //send class name to the cell
         table.setValueAt(name, firstAndLastRows[0], 0);
         //change the row height
         table.setRowHeight(firstAndLastRows[0], table1.getRowHeight(firstAndLastRows[0]) * (firstAndLastRows[1] - firstAndLastRows[0]));
-
     }
 
+    // Turns a schedule's data into a String to be saved ------------------------------------ improve
     public String saveSchedule(){
         String saveString = "";
         saveString += "Monday";
         int classes = 0;
+
         for(int i = 0; i < model2.getRowCount(); i++){
             if(table2.getValueAt(i, 0) != null){
                 //saves row #, class name, row height, and color
@@ -570,12 +577,15 @@ public class Schedule extends JPanel{
         return saveString;
     }
 
+    // Inner class to dynamically display a class in a JTable
     public class WordWrapCellRenderer extends JTextArea implements TableCellRenderer {
         private Color defaultColor = getBackground();
         private ArrayList<Color> colors = new ArrayList<>();
+        private ArrayList<Integer> occupiedRows = new ArrayList<>();
         private int count = 0;
         private int classes = 0;
 
+        // Constructor
         public WordWrapCellRenderer() {
             setWrapStyleWord(true);
             setLineWrap(true);
@@ -583,31 +593,55 @@ public class Schedule extends JPanel{
             setBorder(new EmptyBorder(2, 5, 2, 5));
         }
 
+        // Resets the count variable
         public void resetCount(){
             count = 0;
         } 
 
-        public void setColor(Color c){
+        // Adds a new color to the JTable
+        public void setColor(Color c, int row){
+            if(occupiedRows.isEmpty()){
+                occupiedRows.add(row);
+                colors.add(c);
+                return;
+            }
+            for(int i = 0; i < occupiedRows.size(); i++){
+                if(occupiedRows.get(i) > row){
+                    occupiedRows.add(i, row);
+                    colors.add(i, c);
+                    return;
+                }
+            }
+            occupiedRows.add(row);
             colors.add(c);
+
         }
 
+        // Returns a specific color
         public String getColor(int index){
             return colors.get(index).toString();
         }
 
+        // Helps to display accurate text and color
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
+            if(isSelected){
+                try {
+                    return table;
+                } catch (Exception e) {
+
+                }
+            }
             
-            // Set the text value
+            //set the text value
             setText(value != null ? value.toString() : ""); 
 
             //change background color of the cell
             if(value != null){
                 if(count < colors.size())
                     setBackground(colors.get(count));
-                //setBackground(colors.get((count-1)/colors.size()));
                 count++;
             }
             else{

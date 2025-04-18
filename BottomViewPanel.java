@@ -5,8 +5,11 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -15,6 +18,7 @@ import javax.swing.JPanel;
 public class BottomViewPanel extends JPanel implements ActionListener{
     private MainFrame mainFrame;
     private Schedule schedule;
+    private TopViewPanel topViewPanel;
     private JButton deleteButton;
     private JButton backButton;
     private JButton forwardButton;
@@ -24,14 +28,21 @@ public class BottomViewPanel extends JPanel implements ActionListener{
     private int scheduleListLength;
     private int currentSchedule;
     
+    // Constructor
     public BottomViewPanel(MainFrame mainFrame, Schedule schedule){
         this.mainFrame = mainFrame;
         this.schedule = schedule;
-        createComponents();
+        initializeComponents();
         addComponents();    
     }
 
-    public void createComponents(){
+    // Adds a TopViewPanel object
+    public void addTopViewPanel(TopViewPanel topViewPanel){
+        this.topViewPanel = topViewPanel;
+    }
+
+    // Initializes all JComponents
+    public void initializeComponents(){
         //create delete button
         deleteButton = new JButton("Delete");
         deleteButton.setPreferredSize(new Dimension(175, 25));
@@ -49,7 +60,7 @@ public class BottomViewPanel extends JPanel implements ActionListener{
 
         //create jlabel to show schedule numbers
         currentSchedule = 1;
-        scheduleListLength = getNumOfSchedules();
+        scheduleListLength = getNumberOfSchedules();
         scheduleNumLabel = new JLabel(space + "Schedule: " + currentSchedule + "/" + scheduleListLength);
         scheduleNumLabel.setPreferredSize(new Dimension(300, 15));  
         
@@ -59,6 +70,7 @@ public class BottomViewPanel extends JPanel implements ActionListener{
         createScheduleButton.addActionListener(this);
     }
 
+    // Adds all JComponents to the Panel
     public void addComponents(){
         setLayout(new GridBagLayout());
         GridBagConstraints g = new GridBagConstraints();
@@ -92,9 +104,10 @@ public class BottomViewPanel extends JPanel implements ActionListener{
         add(createScheduleButton, g);
     }
 
-    public int getNumOfSchedules(){
+    // Returns the total number of saved schedules in the txt file
+    public int getNumberOfSchedules(){
         int count = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:/Users/nmars/My VS Code/EtownCodingChallengeSpring2025/SavedSchedules.txt"))){
+        try (BufferedReader reader = new BufferedReader(new FileReader("SavedSchedules.txt"))){
             while(reader.readLine() != null){
                 count++;
             }
@@ -105,20 +118,61 @@ public class BottomViewPanel extends JPanel implements ActionListener{
         return count;
     }
 
+    // Updates the label displaying the current and total schedules
     public void updateScheduleNumLabel(){
         scheduleNumLabel.setText(space +  "Schedule: " + currentSchedule + "/" + scheduleListLength);
     }
 
+    // Removes a schedule from the txt file
+    public void removeSchedule(){
+        ArrayList<String> linesList = new ArrayList<>();
+        
+        //read through txt file, add to allLines list
+        try (BufferedReader reader = new BufferedReader(new FileReader("SavedSchedules.txt"))){
+            String line;
+            int lineCount = 0;
+
+            //go through all lines
+            while ((line = reader.readLine()) != null) {
+                if (lineCount != currentSchedule) {
+                    linesList.add(line); //add line to arraylist if not the line to be removed
+                }
+                lineCount++;
+            }
+        }   
+        catch(IOException e){
+            System.out.println("Trouble retrieving saved schedules");
+        } 
+
+        //write all lines in allLines list to txt file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("SavedSchedules.txt"))) {
+            for (int i = 0; i < linesList.size(); i++) {
+                writer.write(linesList.get(i));
+                if (i < linesList.size() - 1) {
+                    writer.newLine();  // Only add newline if it's not the last line
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    // Method used whenever a button is pressed
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == deleteButton){ //if the user presses the delete button
             //prompt with joptionpane double-checking
-            int response = JOptionPane.showConfirmDialog(schedule, "Are you sure you want to delete this schedule?","Confirm", JOptionPane.YES_NO_OPTION);
+            int response = JOptionPane.showConfirmDialog(schedule, "Are you sure you want to delete this schedule?", "Confirm", JOptionPane.YES_NO_OPTION);
             if (response == JOptionPane.YES_OPTION) { //if the user does want to delete the schedule
                 //remove the line from the text file
-
-                //update scheduleListLength
-
+                removeSchedule();
+                //update scheduleListLength && possibly currentSchedule 
+                if(currentSchedule == scheduleListLength)
+                    currentSchedule--;
+                scheduleListLength--;
+                updateScheduleNumLabel();
             } 
         }
         else if(e.getSource() == backButton){ //if the user presses the back button
@@ -131,9 +185,9 @@ public class BottomViewPanel extends JPanel implements ActionListener{
             updateScheduleNumLabel();
         }
         else if(e.getSource() == forwardButton){ //if the user presses the forward button
-            //decrease the number of the current schedule and display the next schedule
+            //increase the number of the current schedule and display the next schedule
             currentSchedule++;
-            if(currentSchedule == 5){
+            if(currentSchedule > scheduleListLength){
                 currentSchedule = 1;
             }
             schedule.createSavedSchedule((currentSchedule-1));

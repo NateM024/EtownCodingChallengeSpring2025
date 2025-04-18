@@ -7,7 +7,9 @@ import java.io.PrintWriter;
 public class Filter {
     
     public static void main(String[] args){
+        //read the file
         try (BufferedReader reader = new BufferedReader(new FileReader("C:/Users/nmars/My VS Code/EtownCodingChallengeSpring2025/Classes.txt"))) {
+            //create printwriter
             try (PrintWriter out = new PrintWriter(new File("C:/Users/nmars/My VS Code/EtownCodingChallengeSpring2025/FilteredClasses.txt"))){ 
                 String line;
 

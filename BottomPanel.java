@@ -1,14 +1,16 @@
+import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.net.URI;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
@@ -22,17 +24,25 @@ public class BottomPanel extends JPanel implements ActionListener{
     private Schedule schedule;
     private InputPanel inputPanel;
 
+    // Constructor
     public BottomPanel(MainFrame mainFrame){
         this.mainFrame = mainFrame;
-        createComponents();
+        initializeComponents();
         addComponents();
     }
 
-    public void addInputPanel(InputPanel ip){
-        inputPanel = ip;
+    // Adds InputPanel object
+    public void addInputPanel(InputPanel inputPanel){
+        this.inputPanel = inputPanel;
     }
 
-    public void createComponents(){
+    // Add Schedule object
+    public void addSchedule(Schedule schedule){
+        this.schedule = schedule;
+    }
+
+    // Initalizes all JComponents in Panel
+    public void initializeComponents(){
         //label to show number of credits
         creditsLabel = new JLabel("Credits: " + credits);
         creditsLabel.setPreferredSize(new Dimension(100, 30));
@@ -54,6 +64,7 @@ public class BottomPanel extends JPanel implements ActionListener{
 
     }
 
+    // Adds all JComponents to the Panel
     public void addComponents(){
         setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
         add(creditsLabel);
@@ -64,6 +75,7 @@ public class BottomPanel extends JPanel implements ActionListener{
     }
 
     
+    // Method used whenever a button is pressed
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == viewButton){
@@ -73,29 +85,13 @@ public class BottomPanel extends JPanel implements ActionListener{
             mainFrame.setViewMode(true);
         }
         else if(e.getSource() == saveButton){
-            //prompt user with joptionpane to save the schedule
-            // Create a JTextArea
-            JTextArea textArea = new JTextArea(10, 30); // 10 rows and 30 columns
-            textArea.setText("Enter any notes here: ");
-            textArea.setWrapStyleWord(true);
-            textArea.setLineWrap(true);
-            textArea.setCaretPosition(0); // Scroll to the top of the text area
-
-            // Create a JScrollPane to make the JTextArea scrollable
-            JScrollPane scrollPane = new JScrollPane(textArea);
-            
-            // Create a JOptionPane and pass the JScrollPane containing the JTextArea
-            JOptionPane.showMessageDialog(null, scrollPane, "Saving the Schedule", JOptionPane.PLAIN_MESSAGE );
-            // //create print writer
-            // try (PrintWriter out = new PrintWriter(new FileWriter("C:/Users/nmars/My VS Code/EtownCodingChallengeSpring2025/SavedSchedules.txt", true))){
-            //     out.println(schedule.saveSchedule());
-            //     out.close();
-            //     inputPanel.updateErrorLabel("Schedule Saved Successfully!");
-            // }
-            // catch (Exception ex) { 
-            //     System.out.println("Error saving schedule: " + ex); 
-            // } 
-    
+           //not finnish
+           if(credits > 0){
+                saveSchedule();
+           }
+           else{
+                inputPanel.updateErrorLabel("Cannot Save an Empty Schedule", true);
+           }
         }
         else if(e.getSource() == refNumButton){
             try {
@@ -105,15 +101,50 @@ public class BottomPanel extends JPanel implements ActionListener{
                 }
             } 
             catch (Exception ex) {
-                System.out.println("desktop not supported");
+                System.out.println("Desktop not supported");
             }
         }
     }
+    
+    // Saves the current schedule to a txt file
+    public void saveSchedule(){
+        //create a JPanel to add to a JOptionPane
+        JPanel pane = new JPanel();
+        pane.setLayout(new BorderLayout());
+        //create a JLabel
+        JLabel label = new JLabel("Enter any notes here:");
 
-    public void addSchedule(Schedule schedule){
-        this.schedule = schedule;
+        //create a JTextArea
+        JTextArea textArea = new JTextArea(4,20); 
+        textArea.setWrapStyleWord(true);
+        textArea.setLineWrap(true);
+        textArea.setCaretPosition(0);
+        
+        //add the jlabel and jscrollpane to the jpanel
+        pane.add(label, BorderLayout.NORTH);
+        pane.add(textArea, BorderLayout.SOUTH);
+
+
+        //create a JOptionPane and pass the JPanel containing the JTextArea
+        int response = JOptionPane.showConfirmDialog(mainFrame, pane, "Saving the Schedule", JOptionPane.OK_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE );
+        //if the user clicks yes to save the schedule
+        if (response == JOptionPane.YES_OPTION) {
+            //create string including credits and notes
+            String info = "Credits:" + credits + "Notes:" + textArea.getText();
+            try (PrintWriter out = new PrintWriter(new FileWriter("SavedSchedules.txt", true))){
+                    out.print("\n" + schedule.saveSchedule() + info);
+                    out.close();
+                    inputPanel.updateErrorLabel("Schedule Saved Successfully!", false);
+                }
+                catch (Exception ex) { 
+                    ex.printStackTrace();
+                    //System.out.println("Error saving schedule: " + ex); 
+                } 
+        }
     }
 
+    //Updates the number of credits displayed
     public void updateCredits(int num){
         credits += num;
         creditsLabel.setText("Credits: " + credits);

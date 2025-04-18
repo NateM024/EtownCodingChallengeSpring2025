@@ -29,7 +29,7 @@ public class InputPanel extends JPanel implements ActionListener{
         //set panel features 
         setLayout(new GridBagLayout());
         setBackground(new Color(235, 235, 235));
-        createComponents();
+        initializeComponents();
         addComponents();
     }
     
@@ -37,7 +37,7 @@ public class InputPanel extends JPanel implements ActionListener{
         this.schedule = schedule;
     }
 
-    public void createComponents(){
+    public void initializeComponents(){
         //initialize components and set their size
         
         //refnumlabel
@@ -79,8 +79,13 @@ public class InputPanel extends JPanel implements ActionListener{
         add(enterClass, g);
     }
 
-    public void updateErrorLabel(String message){
+    public void updateErrorLabel(String message, boolean red){
+        if(red)
+            errorLabel.setForeground(Color.RED);
+        else
+            errorLabel.setForeground(Color.GREEN);
         errorLabel.setText(message);
+
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -100,13 +105,12 @@ public class InputPanel extends JPanel implements ActionListener{
         //create string to look for
         String code = "<td>" + refNum + "</td>";
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:/Users/nmars/My VS Code/EtownCodingChallengeSpring2025/FilteredClasses.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("FilteredClasses.txt"))) {
             String line;
             //go through each line
             while ((line = reader.readLine()) != null) {
                 //find string we are looking for
                 if(line.indexOf(code) > -1){
-                    System.out.println("Found the line!");
                     getClassInfo(line);
                     schedule.createNewClass(className, classDays, classTime, classCredits);
                     className = "";
@@ -115,8 +119,11 @@ public class InputPanel extends JPanel implements ActionListener{
                     classCredits = 0;
                     return;
                 }
-
             }
+            //if the class was not found
+            updateErrorLabel("Invalid Reference Number", true);
+
+
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
@@ -156,15 +163,16 @@ public class InputPanel extends JPanel implements ActionListener{
                     String daysLine = line.substring(j, (j+temp.indexOf(" ")));
 
                     //by arrangement, online, field, or m, t, w, h, f 
-                    if(daysLine.equals("By")){
+                    if(daysLine.contains("By")){
                         classDays = "By Arrangement";
                         classTime = "None";
                     }
-                    else if(daysLine.equals("ONLN")){
+                    else if(daysLine.contains("ONLN")){
+                        System.out.println("its an online class");
                         classDays = "Online";
                         classTime = "None";
                     }
-                    else if(daysLine.equals("FIELD")){
+                    else if(daysLine.contains("FIELD")){
                         classDays = "Field";
                         classTime = "None";
                     }
@@ -187,9 +195,9 @@ public class InputPanel extends JPanel implements ActionListener{
         }
 
         //check and remove "&amp;" from className, test with refnum: 48959
-        if(className.contains("&amp;")){
-            System.out.println("&amp;");
-            className = className.substring(0, className.indexOf("&amp;")) + className.substring(className.indexOf("&amp;")+6);
-        }
+        // if(className.contains("&amp;")){
+        //     System.out.println("&amp;");
+        //     className = className.substring(0, className.indexOf("&amp;")) + className.substring(className.indexOf("&amp;")+6);
+        // }
     }
 }
