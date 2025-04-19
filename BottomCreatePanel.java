@@ -14,26 +14,27 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-public class BottomPanel extends JPanel implements ActionListener{
+public class BottomCreatePanel extends JPanel implements ActionListener{
     private JLabel creditsLabel;
     private JButton viewButton;
     private JButton saveButton;
     private JButton refNumButton;
+    private JButton clearButton;
     private int credits = 0; 
     private MainFrame mainFrame;
     private Schedule schedule;
-    private InputPanel inputPanel;
+    private TopCreatePanel topCreatePanel;
 
     // Constructor
-    public BottomPanel(MainFrame mainFrame){
+    public BottomCreatePanel(MainFrame mainFrame){
         this.mainFrame = mainFrame;
         initializeComponents();
         addComponents();
     }
 
-    // Adds InputPanel object
-    public void addInputPanel(InputPanel inputPanel){
-        this.inputPanel = inputPanel;
+    // Adds TopCreatePanel object
+    public void addTopCreatePanel(TopCreatePanel topCreatePanel){
+        this.topCreatePanel = topCreatePanel;
     }
 
     // Add Schedule object
@@ -45,22 +46,26 @@ public class BottomPanel extends JPanel implements ActionListener{
     public void initializeComponents(){
         //label to show number of credits
         creditsLabel = new JLabel("Credits: " + credits);
-        creditsLabel.setPreferredSize(new Dimension(100, 30));
+        creditsLabel.setPreferredSize(new Dimension(80, 30));
 
         //button to view saved schedules
-        viewButton = new JButton("View Saved Schedules");
-        viewButton.setPreferredSize(new Dimension(175, 25));
+        viewButton = new JButton("View Schedules");
+        viewButton.setPreferredSize(new Dimension(125, 25));
         viewButton.addActionListener(this);
 
         //button to save the current schedule
         saveButton = new JButton("Save Schedule");
-        saveButton.setPreferredSize(new Dimension(175, 25));
+        saveButton.setPreferredSize(new Dimension(125, 25));
         saveButton.addActionListener(this);
 
         //button to see course listings
         refNumButton = new JButton("View Courses");
-        refNumButton.setPreferredSize(new Dimension(150, 25));
+        refNumButton.setPreferredSize(new Dimension(125, 25));
         refNumButton.addActionListener(this);
+
+        //button to clear current schedule
+        clearButton = new JButton("Clear Schedule");
+        clearButton.addActionListener(this);
 
     }
 
@@ -71,6 +76,7 @@ public class BottomPanel extends JPanel implements ActionListener{
         add(refNumButton);
         add(viewButton);
         add(saveButton);
+        add(clearButton);
         setBorder(new EmptyBorder(10, 0, 10, 0)); 
     }
 
@@ -90,7 +96,7 @@ public class BottomPanel extends JPanel implements ActionListener{
                 saveSchedule();
            }
            else{
-                inputPanel.updateErrorLabel("Cannot Save an Empty Schedule", true);
+                topCreatePanel.updateErrorLabel("Cannot Save an Empty Schedule", true);
            }
         }
         else if(e.getSource() == refNumButton){
@@ -103,6 +109,11 @@ public class BottomPanel extends JPanel implements ActionListener{
             catch (Exception ex) {
                 System.out.println("Desktop not supported");
             }
+        }
+        else if(e.getSource() == clearButton){
+            schedule.resetSchedule();
+            credits = 0;
+            creditsLabel.setText("Credits: " + credits);
         }
     }
     
@@ -131,11 +142,11 @@ public class BottomPanel extends JPanel implements ActionListener{
         //if the user clicks yes to save the schedule
         if (response == JOptionPane.YES_OPTION) {
             //create string including credits and notes
-            String info = "Credits:" + credits + "Notes:" + textArea.getText();
+            String info = "Credits:" + credits + "Notes: " + textArea.getText();
             try (PrintWriter out = new PrintWriter(new FileWriter("SavedSchedules.txt", true))){
                     out.print("\n" + schedule.saveSchedule() + info);
                     out.close();
-                    inputPanel.updateErrorLabel("Schedule Saved Successfully!", false);
+                    topCreatePanel.updateErrorLabel("Schedule Saved Successfully!", false);
                 }
                 catch (Exception ex) { 
                     ex.printStackTrace();

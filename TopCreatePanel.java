@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public class InputPanel extends JPanel implements ActionListener{
+public class TopCreatePanel extends JPanel implements ActionListener{
     private JLabel refNumLabel;
     private JTextField refNumField;
     private JLabel errorLabel;
@@ -25,7 +25,7 @@ public class InputPanel extends JPanel implements ActionListener{
     private int classCredits = 0;
     private Schedule schedule;
 
-    public InputPanel(){
+    public TopCreatePanel(){
         //set panel features 
         setLayout(new GridBagLayout());
         setBackground(new Color(235, 235, 235));

@@ -6,9 +6,9 @@ public class MainFrame extends JFrame{
     private final int FRAME_WIDTH = 750;
     private final int FRAME_HEIGHT = 885;
     private Schedule schedule;
-    private InputPanel inputPanel;
+    private TopCreatePanel topCreatePanel;
     private TopViewPanel topViewPanel;
-    private BottomPanel bottomPanel;
+    private BottomCreatePanel bottomCreatePanel;
     private BottomViewPanel bottomViewPanel;
 
     public MainFrame(){
@@ -19,26 +19,26 @@ public class MainFrame extends JFrame{
 
         //create schedule and input panel and bottom panel
         schedule = new Schedule(); 
-        inputPanel = new InputPanel();
-        bottomPanel = new BottomPanel(this);
+        topCreatePanel = new TopCreatePanel();
+        bottomCreatePanel = new BottomCreatePanel(this);
 
         //create topViewPanel and bottomViewPanel but don't add them
-        topViewPanel = new TopViewPanel(this, schedule);
+        topViewPanel = new TopViewPanel();
         bottomViewPanel = new BottomViewPanel(this, schedule);
 
         //connect things
-        schedule.addInputPanel(inputPanel);
-        schedule.addBottomPanel(bottomPanel);
+        schedule.addTopCreatePanel(topCreatePanel);
+        schedule.addBottomCreatePanel(bottomCreatePanel);
         schedule.addTopViewPanel(topViewPanel);
-        inputPanel.addSchedule(schedule);
-        bottomPanel.addSchedule(schedule);
-        bottomPanel.addInputPanel(inputPanel);
+        topCreatePanel.addSchedule(schedule);
+        bottomCreatePanel.addSchedule(schedule);
+        bottomCreatePanel.addTopCreatePanel(topCreatePanel);
         bottomViewPanel.addTopViewPanel(topViewPanel);
 
         //add schedule and input panel to frame
-        add(inputPanel, BorderLayout.NORTH);
+        add(topCreatePanel, BorderLayout.NORTH);
         add(schedule);
-        add(bottomPanel, BorderLayout.SOUTH);
+        add(bottomCreatePanel, BorderLayout.SOUTH);
 
         //set JFrame to be visible & unresizable
         setResizable(false);
@@ -50,14 +50,14 @@ public class MainFrame extends JFrame{
         if(!view){
             remove(bottomViewPanel);
             remove(topViewPanel);
-            add(inputPanel, BorderLayout.NORTH);
-            add(bottomPanel, BorderLayout.SOUTH);
+            add(topCreatePanel, BorderLayout.NORTH);
+            add(bottomCreatePanel, BorderLayout.SOUTH);
             revalidate();
             repaint();
         }
         else{            
-            remove(bottomPanel);
-            remove(inputPanel);
+            remove(bottomCreatePanel);
+            remove(topCreatePanel);
             add(topViewPanel, BorderLayout.NORTH);
             add(bottomViewPanel, BorderLayout.SOUTH);
             revalidate();
@@ -70,23 +70,3 @@ public class MainFrame extends JFrame{
         new MainFrame();
     }
 }
-/**
- * To do:
- *      -viewing saved schedules
- *          -look through saved ones - done
- *          -replace bottompanel with buttons - done
- *          -remove saved one - tuesday evening - done
- * 
- *          -replace top panel: - thursday afternoon
- *              -schedule name, 
- *              -credits,
- *              -user notes 
- *      -improve code - friday 
- *          -delete commented out code
- *          -add explanatory comments
- *          -implement for loops
- *          -rename classes
- *          -change create to initialize
- *      -update class files
- *      
- */
