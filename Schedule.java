@@ -374,14 +374,12 @@ public class Schedule extends JPanel{
                 Color tempColor = colorList.remove(0);
                 colorList.add(tempColor);
 
-                //update credits displayed in bottom panel
-                if(credits == 0){
-                    topCreatePanel.updateErrorLabel("Error adding class credits", true);
-                }
-                else{
-                    bottomCreatePanel.updateCredits(credits);
-                    topCreatePanel.updateErrorLabel("", true); //clear error label from any previous text
-                }
+                //update credits displayed
+                bottomCreatePanel.updateCredits(credits);
+
+                //clear error label from any previous text
+                topCreatePanel.updateErrorLabel("", true); 
+                
                 //reset array
                 firstAndLastRows = new int[2];
             }

@@ -150,7 +150,6 @@ public class BottomCreatePanel extends JPanel implements ActionListener{
                 }
                 catch (Exception ex) { 
                     ex.printStackTrace();
-                    //System.out.println("Error saving schedule: " + ex); 
                 } 
         }
     }

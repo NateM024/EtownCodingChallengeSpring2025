@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class TopCreatePanel extends JPanel implements ActionListener{
+    private Schedule schedule;
     private JLabel refNumLabel;
     private JTextField refNumField;
     private JLabel errorLabel;
@@ -23,7 +24,7 @@ public class TopCreatePanel extends JPanel implements ActionListener{
     private String classDays = "";
     private String className = "";
     private int classCredits = 0;
-    private Schedule schedule;
+    private int totalCredits = 0;
 
     public TopCreatePanel(){
         //set panel features 
@@ -93,7 +94,6 @@ public class TopCreatePanel extends JPanel implements ActionListener{
         if(e.getSource() == enterClass){
             try {
                 findClass(refNumField.getText());
-                System.out.println(className + ", " + classDays + ", " + classTime);
             }
             catch (IOException e1) {
                 e1.printStackTrace();
@@ -112,7 +112,13 @@ public class TopCreatePanel extends JPanel implements ActionListener{
                 //find string we are looking for
                 if(line.indexOf(code) > -1){
                     getClassInfo(line);
-                    schedule.createNewClass(className, classDays, classTime, classCredits);
+                    if(totalCredits + classCredits > 20){ // check if the total credits would exceed 20
+                        updateErrorLabel("You cannot register for more than 20 credits", true);
+                    }
+                    else{ //else add the class
+                        totalCredits += classCredits;
+                        schedule.createNewClass(className, classDays, classTime, classCredits);
+                    }
                     className = "";
                     classDays = "";
                     classTime = "";
@@ -122,7 +128,6 @@ public class TopCreatePanel extends JPanel implements ActionListener{
             }
             //if the class was not found
             updateErrorLabel("Invalid Reference Number", true);
-
 
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
@@ -168,7 +173,6 @@ public class TopCreatePanel extends JPanel implements ActionListener{
                         classTime = "None";
                     }
                     else if(daysLine.contains("ONLN")){
-                        System.out.println("its an online class");
                         classDays = "Online";
                         classTime = "None";
                     }
@@ -188,16 +192,14 @@ public class TopCreatePanel extends JPanel implements ActionListener{
                         classCredits = Integer.parseInt(line.substring(i+1,i+2));
                     } catch (Exception e) {
                         System.out.println("Error in Retrieving class credits");
-                        System.out.println(line.substring(i, i+5));
                     }
                 }
             }
         }
 
         //check and remove "&amp;" from className, test with refnum: 48959
-        // if(className.contains("&amp;")){
-        //     System.out.println("&amp;");
-        //     className = className.substring(0, className.indexOf("&amp;")) + className.substring(className.indexOf("&amp;")+6);
-        // }
+        if(className.contains("&amp;")){
+            className = className.substring(0, className.indexOf("&amp;")) + className.substring(className.indexOf("&amp;")+6);
+        }
     }
 }
