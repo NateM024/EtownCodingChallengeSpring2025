@@ -196,7 +196,7 @@ public class BottomViewPanel extends JPanel implements ActionListener{
         else if(e.getSource() == createScheduleButton){ //if the user presses the create schedule button
             //update mainframe to show empty schedule
             mainFrame.setViewMode(false);
-            schedule.resetSchedule();
+            schedule.resetTables();
         }
     }
 }

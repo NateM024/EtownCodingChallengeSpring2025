@@ -111,7 +111,7 @@ public class BottomCreatePanel extends JPanel implements ActionListener{
             }
         }
         else if(e.getSource() == clearButton){
-            schedule.resetSchedule();
+            schedule.resetTables();
             credits = 0;
             creditsLabel.setText("Credits: " + credits);
         }

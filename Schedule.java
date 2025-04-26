@@ -268,15 +268,8 @@ public class Schedule extends JPanel{
          //Set the columns to be able to have dynamic text features
         for(JTable table : dayTables){
             table.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
+    
         }
-    }
-
-    // Resets the currently displayed schedule
-    public void resetSchedule(){
-        createTimeTable();
-        resetTables();
-        createDayTables();
-        addTables();
     }
     
     // Helps display a saved schedule
@@ -517,7 +510,7 @@ public class Schedule extends JPanel{
         table.setRowHeight(firstAndLastRows[0], table1.getRowHeight(firstAndLastRows[0]) * (firstAndLastRows[1] - firstAndLastRows[0]));
     }
 
-    // Turns a schedule's data into a String to be saved ------------------------------------ improve
+    // Turns a schedule's data into a String to be saved 
     public String saveSchedule(){
         String saveString = "";
         saveString += "Monday";
@@ -538,6 +531,7 @@ public class Schedule extends JPanel{
                 //saves row #, class name, row height, and color
                 String color =  ((WordWrapCellRenderer) table3.getCellRenderer(i, 0)).getColor(classes);
                 saveString += "|" + i + "|" + table3.getValueAt(i, 0) + "|" + table3.getRowHeight(i) + "|" + color;
+                classes++;
             }
         }
         classes = 0;
@@ -547,6 +541,7 @@ public class Schedule extends JPanel{
                 //saves row #, class name, row height, and color
                 String color =  ((WordWrapCellRenderer) table4.getCellRenderer(i, 0)).getColor(classes);
                 saveString += "|" + i + "|" + table4.getValueAt(i, 0) + "|" + table4.getRowHeight(i) + "|" + color;
+                classes++;
             }
         }
         classes = 0;
@@ -556,6 +551,7 @@ public class Schedule extends JPanel{
                 //saves row #, class name, row height, and color
                 String color =  ((WordWrapCellRenderer) table5.getCellRenderer(i, 0)).getColor(classes);
                 saveString += "|" + i + "|" + table5.getValueAt(i, 0) + "|" + table5.getRowHeight(i) + "|" + color;
+                classes++;
             }
         }
         classes = 0;
@@ -565,6 +561,7 @@ public class Schedule extends JPanel{
                 //saves row #, class name, row height, and color
                 String color =  ((WordWrapCellRenderer) table6.getCellRenderer(i, 0)).getColor(classes);
                 saveString += "|" + i + "|" + table6.getValueAt(i, 0) + "|" + table6.getRowHeight(i) + "|" + color;
+                classes++;
             }
         }
 
@@ -623,13 +620,13 @@ public class Schedule extends JPanel{
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
-            if(isSelected){
-                try {
-                    return table;
-                } catch (Exception e) {
+            // if(isSelected){
+            //     try {
+            //         return table;
+            //     } catch (Exception e) {
 
-                }
-            }
+            //     }
+            // }
             
             //set the text value
             setText(value != null ? value.toString() : ""); 
